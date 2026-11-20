@@ -11,13 +11,13 @@ export function Corner({ cityAttribution }: { cityAttribution: string }): ReactE
   const schematic = visible.some((l) => l.isSchematic);
   return (
     <div className="corner">
+      <div className="attr">
+        © {cityAttribution}
+        {schematic && <span className="schem"> · Jordlager schematiska</span>}
+      </div>
       <div className="meter" title="Bildfrekvens och bildtid">
         {loading > 0 && <i className="dot" aria-label="laddar" />}
         {stats.fps} fps · {stats.frameMs} ms
-      </div>
-      <div className="attr">
-        © {cityAttribution}
-        {schematic && <span> · Jordlager schematiska</span>}
       </div>
       <div className="ver">{versionLabel()}</div>
     </div>

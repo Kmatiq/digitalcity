@@ -82,7 +82,7 @@ svg {
   position: absolute;
   left: 12px;
   right: 12px;
-  bottom: calc(44px + var(--safe-b));
+  bottom: calc(40px + var(--safe-b));
   border-radius: 20px;
   padding: 18px 16px 14px;
   max-width: 460px;
@@ -223,7 +223,7 @@ svg {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  bottom: calc(26px + var(--safe-b));
+  bottom: calc(36px + var(--safe-b));
   display: flex;
   gap: 2px;
   padding: 4px;
@@ -253,7 +253,7 @@ svg {
   max-height: 45dvh;
   overflow: auto;
   border-radius: 18px 18px 0 0;
-  padding: 10px 16px calc(84px + var(--safe-b));
+  padding: 10px 16px calc(96px + var(--safe-b));
   background: var(--glass-strong);
 }
 
@@ -407,7 +407,7 @@ svg {
 .card.docked {
   left: 12px;
   right: 12px;
-  bottom: calc(88px + var(--safe-b));
+  bottom: calc(98px + var(--safe-b));
 }
 
 .card h3 {
@@ -439,30 +439,37 @@ svg {
 }
 
 /* ---------- corner: attribution, version, meter ---------- */
+/* narrow: attribution on its own full-width row (never truncated), meter + version below */
 .corner {
   position: absolute;
   left: 8px;
   right: 8px;
-  bottom: calc(4px + var(--safe-b));
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  bottom: calc(3px + var(--safe-b));
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    'attr attr'
+    'meter ver';
+  gap: 1px 8px;
   font-size: 10.5px;
-  color: rgba(255, 255, 255, 0.82);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75);
   pointer-events: none;
   white-space: nowrap;
 }
 
 .corner .attr {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex: 1;
+  grid-area: attr;
   text-align: center;
 }
 
+.corner .attr .schem {
+  opacity: 0.8;
+}
+
 .corner .meter {
+  grid-area: meter;
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -470,7 +477,15 @@ svg {
 }
 
 .corner .ver {
+  grid-area: ver;
   opacity: 0.75;
+  text-align: right;
+}
+
+@media (max-width: 380px) {
+  .corner .attr .schem {
+    display: none;
+  }
 }
 
 .error {
@@ -516,6 +531,8 @@ svg {
   }
 
   .corner {
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas: 'meter attr ver';
     font-size: 11px;
   }
 }

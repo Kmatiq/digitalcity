@@ -40,6 +40,8 @@ export class Engine {
   private pixelRatio = 1;
   private running = false;
   private resizeObs: ResizeObserver;
+  /** Menu mode on narrow screens: shift the view so the diorama sits above the menu panel. */
+  menuFraming = false;
 
   constructor(
     private canvas: HTMLCanvasElement,
@@ -157,6 +159,8 @@ export class Engine {
     this.renderer.setSize(w, h, false);
     this.post.setSize(w, h, this.pixelRatio);
     this.camera.aspect = w / h;
+    if (this.menuFraming && w < 600) this.camera.setViewOffset(w, h, 0, h * 0.24, w, h);
+    else this.camera.clearViewOffset();
     this.camera.updateProjectionMatrix();
   }
 

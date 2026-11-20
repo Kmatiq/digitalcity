@@ -40,6 +40,15 @@ const SCENES = [
     ],
   },
   {
+    id: 'pick',
+    query: '?headless&mode=explore&time=2026-06-15T09:30:00Z',
+    camera: [
+      [160, 170, 140],
+      [-14, 12, -93],
+    ],
+    tapCenter: true,
+  },
+  {
     id: 'edge',
     query: '?headless&mode=explore&time=2026-06-15T15:30:00Z',
     camera: [
@@ -86,6 +95,17 @@ for (const v of VIEWS) {
     if (s.camera) await page.evaluate((c) => window.__stadsplattan.setCamera(c[0], c[1]), s.camera);
     const stats = await waitIdle(page, 120000);
     await page.waitForTimeout(1500);
+    if (s.tapCenter) {
+      const x = Math.round(v.width / 2);
+      const y = Math.round(v.height / 2);
+      if (v.touch) await page.touchscreen.tap(x, y);
+      else await page.mouse.click(x, y);
+      await page
+        .waitForSelector('.card', { timeout: 60000 })
+        .catch(() => console.log('  no info card'));
+      const card = await page.$eval('.card', (el) => el.textContent).catch(() => null);
+      console.log('  card:', card);
+    }
     const file = `shots/${v.name}-${s.id}.png`;
     await page.screenshot({ path: file, timeout: 240000 });
     console.log(file, JSON.stringify(stats));

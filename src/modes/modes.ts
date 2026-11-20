@@ -12,11 +12,15 @@ export function menuMode(engine: Engine): AppModeController {
     async setup() {
       engine.controls.autoRotate = 0.05;
       engine.controls.enabled = !engine.headless;
+      engine.menuFraming = true;
+      engine.resize();
     },
     update() {},
     async teardown() {
       engine.controls.autoRotate = 0;
       engine.controls.enabled = true;
+      engine.menuFraming = false;
+      engine.resize();
     },
   };
 }
