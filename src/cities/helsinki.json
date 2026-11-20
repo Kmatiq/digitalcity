@@ -1,0 +1,35 @@
+{
+  "id": "helsinki",
+  "name": "Helsingfors",
+  "center": { "lat": 60.1695, "lon": 24.9525 },
+  "size": { "width": 2000, "depth": 2000, "below": 50, "above": 250 },
+  "crs": "EPSG:3879",
+  "heightSystem": "N2000",
+  "seaLevel": 0,
+  "attribution": "Helsingin kaupunki (CC BY 4.0)",
+  "camera": { "position": [1150, 950, 1650], "target": [0, 0, 0] },
+  "layers": {
+    "terrain": {
+      "source": "hel-terrain-2021",
+      "url": "https://kartta.hel.fi/3d/datasource-data/4383570b-33a3-4a9f-ae16-93373aff5ffa/",
+      "heightmap": "cities/helsinki/terrain.bin",
+      "meta": "cities/helsinki/terrain.json"
+    },
+    "ortho": {
+      "source": "hel-wms",
+      "url": "https://kartta.hel.fi/ws/geoserver/avoindata/wms",
+      "layer": "avoindata:Ortoilmakuva_2025_5cm"
+    },
+    "buildings": {
+      "source": "hel-lod2",
+      "url": "https://kartta.hel.fi/3d/datasource-data/16fc3fd5-df6d-4f48-bfd5-9aeee430a02f/tileset.json"
+    },
+    "water": {
+      "source": "hel-wfs-maavesi",
+      "url": "https://kartta.hel.fi/ws/geoserver/avoindata/wfs",
+      "typeNames": ["avoindata:Maavesi_merialue", "avoindata:Maavesi_muut_vesialueet"],
+      "file": "cities/helsinki/water.json"
+    },
+    "transit": { "source": "hsl-hfp" }
+  }
+}

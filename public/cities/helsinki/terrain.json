@@ -1,0 +1,18 @@
+{
+ "source": "Helsinki terrain 2021 (quantized-mesh), N2000",
+ "attribution": "Helsingin kaupunki (CC BY 4.0)",
+ "generated": "2026-11-20T08:32:58.888Z",
+ "zoom": 17,
+ "resolution": 2,
+ "nx": 1001,
+ "nz": 1001,
+ "encoding": "int16-cm-le, row 0 = north (z=-halfD), col 0 = west (x=-halfW)",
+ "minY": -10,
+ "maxY": 31.825088500976562,
+ "seabed": {
+  "schematic": true,
+  "maxDepth": 10,
+  "rule": "min(max, 1.5 + 0.2 * shoreDist)"
+ },
+ "waterCells": 256831
+}
