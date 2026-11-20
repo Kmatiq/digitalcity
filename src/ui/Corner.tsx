@@ -9,10 +9,14 @@ export function Corner({ cityAttribution }: { cityAttribution: string }): ReactE
   const loading = useAppState((s) => s.loading);
   const visible = layers.filter((l) => l.visible);
   const schematic = visible.some((l) => l.isSchematic);
+  const credits = [...new Set(visible.flatMap((l) => (l.credit ? [l.credit] : [])))];
   return (
     <div className="corner">
       <div className="attr">
         © {cityAttribution}
+        {credits.map((c) => (
+          <span key={c}> · {c}</span>
+        ))}
         {schematic && <span className="schem"> · Jordlager schematiska</span>}
       </div>
       <div className="meter" title="Bildfrekvens och bildtid">

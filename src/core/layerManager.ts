@@ -22,6 +22,7 @@ export class LayerManager {
           state: 'idle',
           attribution: layer.attribution,
           isSchematic: layer.isSchematic,
+          credit: layer.credit,
         },
       ],
     });

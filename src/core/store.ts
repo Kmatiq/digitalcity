@@ -1,6 +1,7 @@
 /** Tiny observable store shared by engine and React UI (useSyncExternalStore). */
 import { useSyncExternalStore } from 'react';
 import type { AppMode, FrameStats, PickResult, QualityLevel } from './types';
+import type { GameView } from '../modes/transit/gameView';
 
 export interface LayerStatus {
   id: string;
@@ -9,6 +10,7 @@ export interface LayerStatus {
   state: 'idle' | 'loading' | 'ready' | 'error';
   attribution: string[];
   isSchematic?: boolean;
+  credit?: string;
   message?: string;
 }
 
@@ -23,6 +25,7 @@ export interface AppState {
   loading: number; // outstanding requests
   ready: boolean;
   error: string | null;
+  game: GameView | null;
 }
 
 type Listener = () => void;
@@ -39,6 +42,7 @@ class Store {
     loading: 0,
     ready: false,
     error: null,
+    game: null,
   };
   private listeners = new Set<Listener>();
 

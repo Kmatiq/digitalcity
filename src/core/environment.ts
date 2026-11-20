@@ -8,6 +8,8 @@ import { Sky } from 'three/examples/jsm/objects/Sky.js';
 import { sunPosition } from './sun';
 
 const UPDATE_ANGLE = THREE.MathUtils.degToRad(0.5);
+const DAY_SKY = new THREE.Color(0xdfe9f5);
+const NIGHT_SKY = new THREE.Color(0x8ea4cf);
 
 export class Environment {
   readonly sun = new THREE.DirectionalLight(0xffffff, 3);
@@ -49,8 +51,10 @@ export class Environment {
     const low = 1 - THREE.MathUtils.smoothstep(s.altitude, 0.02, 0.5);
     this.sun.intensity = 2.6 * THREE.MathUtils.smoothstep(s.altitude, -0.02, 0.1);
     this.sun.color.setRGB(1, 0.97 - 0.22 * low, 0.92 - 0.45 * low);
-    this.hemi.intensity = 0.08 + 0.3 * day;
-    this.renderer.toneMappingExposure = 0.85 + 0.35 * (1 - day);
+    // Night floor ("moonlight") until the real night mode (M3): keeps the city readable.
+    this.hemi.intensity = THREE.MathUtils.lerp(1.1, 0.38, day);
+    this.hemi.color.lerpColors(NIGHT_SKY, DAY_SKY, day);
+    this.renderer.toneMappingExposure = THREE.MathUtils.lerp(1.15, 0.85, day);
 
     if (this.sunDir.angleTo(this.lastDir) > UPDATE_ANGLE) {
       this.lastDir.copy(this.sunDir);
@@ -69,8 +73,8 @@ export class Environment {
     this.envRT = this.pmrem.fromCubemap(this.cubeRT.texture);
     this.scene.environment = this.envRT.texture;
     // Preetham radiance is ~2–6 in daylight: scale it so IBL fills shadows without washing out.
-    this.scene.environmentIntensity = 0.06 + 0.16 * day;
-    this.scene.backgroundIntensity = 0.12 + 0.3 * day;
+    this.scene.environmentIntensity = 0.12 + 0.1 * day;
+    this.scene.backgroundIntensity = 0.9 - 0.48 * day;
   }
 
   /** Place the directional light so its shadow frustum looks at `center`. */

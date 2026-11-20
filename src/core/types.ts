@@ -53,6 +53,8 @@ export interface Layer {
   label: string;
   category: 'base' | 'surface' | 'underground' | 'live';
   attribution: string[]; // shown in UI while the layer is visible
+  /** Short credit for the always-visible corner when not the city's own data. */
+  credit?: string;
   isSchematic?: boolean; // true for illustrative layers
   visible: boolean;
   load(ctx: CityContext, signal: AbortSignal): Promise<void>;
