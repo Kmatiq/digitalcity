@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactElement } from 'react';
 import { getEngine, getGameActions, saveQuality, startApp } from '../app';
-import { getCity } from '../cities/cityConfig';
+import { CITIES, getCity } from '../cities/cityConfig';
 import { store, useAppState } from '../core/store';
 import type { AppMode, QualityLevel } from '../core/types';
 import { Corner } from './Corner';
@@ -50,6 +50,9 @@ export function App(): ReactElement {
         {mode === 'menu' && !dataOpen && (
           <StartMenu
             cityName={city.name}
+            cityId={city.id}
+            cities={Object.values(CITIES).map((c) => ({ id: c.id, name: c.name }))}
+            lockedModes={city.layers.transit ? [] : ['transit_game']}
             onSelect={setMode}
             onQuality={setQuality}
             onData={() => setDataOpen(true)}

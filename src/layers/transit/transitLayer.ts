@@ -36,7 +36,11 @@ export class TransitLayer implements Layer {
   private ctx!: CityContext;
   private group = new THREE.Group();
 
-  constructor(private city: CityConfig) {
+  private cfg: NonNullable<CityConfig['layers']['transit']>;
+
+  constructor(city: CityConfig) {
+    if (!city.layers.transit) throw new Error(`${city.id} has no transit config`);
+    this.cfg = city.layers.transit;
     this.group.name = 'transit';
   }
 
@@ -50,7 +54,7 @@ export class TransitLayer implements Layer {
       },
       (x, z) => Math.abs(x) <= hw && Math.abs(z) <= hd,
     );
-    this.network = await loadNetwork(ctx.resolveUrl(this.city.layers.transit.file), signal);
+    this.network = await loadNetwork(ctx.resolveUrl(this.cfg.file), signal);
     this.lines = new NetworkLines(this.network, ctx.groundHeight);
     this.meshes = new VehicleMeshes((m) => ctx.registerMaterial(m));
     this.group.add(this.lines.group, this.meshes.group);
@@ -68,9 +72,9 @@ export class TransitLayer implements Layer {
       minLon: Math.min(...corners.map((c) => c.lon)),
       maxLon: Math.max(...corners.map((c) => c.lon)),
     });
-    const modes = this.city.layers.transit.modes as TransitMode[];
+    const modes = this.cfg.modes as TransitMode[];
     this.client = await connectHfp(
-      this.city.layers.transit.mqtt,
+      this.cfg.mqtt,
       hfpTopics(modes, cells),
       (u) => this.vehicles?.ingest(u),
       (s) => {

@@ -29,7 +29,7 @@ export class BuildingsLayer implements Layer {
   id = 'buildings';
   label = 'Byggnader (LOD2)';
   category = 'surface' as const;
-  attribution = ['Byggnader: Helsingin kaupunki (CC BY 4.0)'];
+  attribution: string[];
   visible = true;
 
   private tiles: TilesRenderer | null = null;
@@ -40,7 +40,9 @@ export class BuildingsLayer implements Layer {
   private quality: QualityLevel = 'medium';
   private errors = 0;
 
-  constructor(private city: CityConfig) {}
+  constructor(private city: CityConfig) {
+    this.attribution = [city.layers.buildings.attribution];
+  }
 
   async load(ctx: CityContext, signal: AbortSignal): Promise<void> {
     this.ctx = ctx;

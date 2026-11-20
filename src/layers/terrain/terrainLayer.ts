@@ -5,12 +5,12 @@
  */
 import * as THREE from 'three';
 import type { CityConfig } from '../../cities/cityConfig';
-import { createFrame, localTo3879 } from '../../core/coordinates';
+import { createFrame, localToProjected } from '../../core/coordinates';
 import { isAbort } from '../../core/fetchQueue';
 import { QUALITY } from '../../core/quality';
 import type { CityContext, Layer, QualityLevel, SimTime } from '../../core/types';
 import { bboxOf, buildTileGeometry, fitAffine, type Affine } from './groundTile';
-import { fetchTexture, wmsUrl, type Bbox3879 } from './orthoSource';
+import { fetchTexture, wmsUrl, type ProjBbox } from './orthoSource';
 
 const TILE = 250;
 const LOD_INTERVAL = 0.3; // s
@@ -20,7 +20,7 @@ interface Tile {
   z0: number;
   center: THREE.Vector3;
   affine: Affine;
-  bbox: Bbox3879;
+  bbox: ProjBbox;
   mesh: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>;
   size: number; // loaded texture size (0 = overview)
   wanted: number;
@@ -31,12 +31,12 @@ export class TerrainLayer implements Layer {
   id = 'terrain';
   label = 'Mark & flygfoto';
   category = 'base' as const;
-  attribution = ['Flygfoto & terräng: Helsingin kaupunki (CC BY 4.0)'];
+  attribution: string[];
   visible = true;
 
   private group = new THREE.Group();
   private tiles: Tile[] = [];
-  private overview: { tex: THREE.Texture; bbox: Bbox3879 } | null = null;
+  private overview: { tex: THREE.Texture; bbox: ProjBbox } | null = null;
   private ctx!: CityContext;
   private quality: QualityLevel = 'medium';
   private sinceLod = 0;
@@ -46,13 +46,15 @@ export class TerrainLayer implements Layer {
 
   constructor(private city: CityConfig) {
     this.group.name = 'terrain';
+    this.attribution = [city.layers.ortho.attribution, city.layers.terrain.attribution];
   }
 
   async load(ctx: CityContext, signal: AbortSignal): Promise<void> {
     this.ctx = ctx;
     this.signal = signal;
     const frame = createFrame(this.city.center.lat, this.city.center.lon);
-    const project = (x: number, z: number): [number, number] => localTo3879(frame, x, z);
+    const crs = this.city.layers.ortho.crs;
+    const project = (x: number, z: number): [number, number] => localToProjected(frame, crs, x, z);
     const { halfWidth: hw, halfDepth: hd } = ctx.bounds;
     for (let z0 = -hd; z0 < hd - 1e-6; z0 += TILE) {
       for (let x0 = -hw; x0 < hw - 1e-6; x0 += TILE) {
@@ -104,7 +106,8 @@ export class TerrainLayer implements Layer {
     const a = fitAffine(-hw, -hd, 2 * hw, project);
     const bbox = bboxOf(a, 2 * hw, 2);
     const size = this.quality === 'low' ? 1024 : 2048;
-    const url = wmsUrl(this.city.layers.ortho.url, this.city.layers.ortho.layer, bbox, size);
+    const o = this.city.layers.ortho;
+    const url = wmsUrl(o.url, o.layer, o.crs, bbox, size);
     const tex = await this.ctx.queue.add({
       priority: () => -1,
       signal: this.signal,
@@ -160,7 +163,8 @@ export class TerrainLayer implements Layer {
     const ctl = new AbortController();
     this.signal.addEventListener('abort', () => ctl.abort(), { once: true });
     t.pending = ctl;
-    const url = wmsUrl(this.city.layers.ortho.url, this.city.layers.ortho.layer, t.bbox, size);
+    const o = this.city.layers.ortho;
+    const url = wmsUrl(o.url, o.layer, o.crs, t.bbox, size);
     const aniso = this.ctx.renderer.capabilities.getMaxAnisotropy();
     this.ctx.queue
       .add({

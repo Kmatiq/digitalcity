@@ -1,0 +1,58 @@
+{
+  "id": "goteborg",
+  "name": "Göteborg",
+  "country": "Sverige",
+  "center": {
+    "lat": 57.7072,
+    "lon": 11.9668
+  },
+  "size": {
+    "width": 2000,
+    "depth": 2000,
+    "below": 50,
+    "above": 250
+  },
+  "crs": "EPSG:3007",
+  "heightSystem": "RH2000",
+  "seaLevel": 0,
+  "attribution": "Göteborgs Stad (CC0)",
+  "camera": {
+    "position": [
+      1150,
+      950,
+      1650
+    ],
+    "target": [
+      0,
+      0,
+      0
+    ]
+  },
+  "layers": {
+    "terrain": {
+      "source": "gbg-hojdmodell-wcs",
+      "url": "https://opengeodata.goteborg.se/services/hojdmodell/wcs/v2",
+      "coverage": "hojdmodell-v2__hojdgrid",
+      "heightmap": "cities/goteborg/terrain.bin",
+      "meta": "cities/goteborg/terrain.json",
+      "attribution": "Höjdmodell 2022: Göteborgs Stad (CC0)"
+    },
+    "ortho": {
+      "source": "gbg-ortofoto-wms",
+      "url": "https://opengeodata.goteborg.se/services/ortofoto/wms/v1",
+      "layer": "orto_2025",
+      "crs": "EPSG:3007",
+      "attribution": "Ortofoto 2025: Göteborgs Stad (CC0)"
+    },
+    "buildings": {
+      "source": "gbg-baskarta-takkonturer",
+      "type": "extruded",
+      "file": "cities/goteborg/buildings.json",
+      "attribution": "Byggnader (takkonturer, baskarta): Göteborgs Stad (CC0)"
+    },
+    "water": {
+      "source": "gbg-hojdmodell-vattenytor",
+      "attribution": "Vatten härlett ur höjdmodellen: Göteborgs Stad (CC0)"
+    }
+  }
+}

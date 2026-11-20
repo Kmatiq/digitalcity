@@ -8,9 +8,13 @@ import {
   epsg3879ToLocal,
   geodeticToEcef,
   localTo3879,
+  localToProjected,
   localToWgs84,
+  projectedToLocal,
+  projectedToWgs84,
   wgs84To3879,
   wgs84ToLocal,
+  wgs84ToProjected,
 } from './coordinates';
 
 // Slab centre (Senate Square) and Helsinki Cathedral (north side of the square).
@@ -69,6 +73,27 @@ describe('coordinates', () => {
     const back = epsg3879ToLocal(frame, e2, n2, 0);
     expect(back[0]).toBeCloseTo(500, 3);
     expect(back[2]).toBeCloseTo(-700, 3);
+  });
+
+  it('SWEREF 99 12 00 (EPSG:3007): Gustaf Adolfs torg and round trip', () => {
+    // Göteborg: Gustaf Adolfs torg ≈ E 148 020, N 6 398 670 in SWEREF 99 12 00
+    const [e, n] = wgs84ToProjected('EPSG:3007', 11.9668, 57.7072);
+    expect(e).toBeGreaterThan(147950);
+    expect(e).toBeLessThan(148090);
+    expect(n).toBeGreaterThan(6398600);
+    expect(n).toBeLessThan(6398740);
+    const g = createFrame(57.7072, 11.9668);
+    const [e2, n2] = localToProjected(g, 'EPSG:3007', -300, 450);
+    const back = projectedToLocal(g, 'EPSG:3007', e2, n2);
+    expect(back[0]).toBeCloseTo(-300, 3);
+    expect(back[2]).toBeCloseTo(450, 3);
+    // SWEREF 99 TM vs 12 00 differ but describe the same point
+    const [lon, lat] = projectedToWgs84(
+      'EPSG:3006',
+      ...wgs84ToProjected('EPSG:3006', 11.9668, 57.7072),
+    );
+    expect(lon).toBeCloseTo(11.9668, 7);
+    expect(lat).toBeCloseTo(57.7072, 7);
   });
 
   it('ECEF->local matrix equals ecefToLocal', () => {

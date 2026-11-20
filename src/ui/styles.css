@@ -771,3 +771,7 @@ svg {
     right: 84px;
   }
 }
+
+.city-pick {
+  margin: 0 0 12px;
+}

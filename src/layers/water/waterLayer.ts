@@ -17,17 +17,26 @@ export class WaterLayer implements Layer {
   id = 'water';
   label = 'Vatten';
   category = 'surface' as const;
-  attribution = ['Vattenområden: Helsingin kaupunki (CC BY 4.0)'];
+  attribution: string[];
   visible = true;
 
   private mesh: THREE.Mesh<THREE.BufferGeometry, THREE.MeshPhysicalMaterial> | null = null;
   private normalMap = createWaterNormalMap();
   private elapsed = 0;
 
-  constructor(private city: CityConfig) {}
+  constructor(private city: CityConfig) {
+    this.attribution = [city.layers.water.attribution];
+  }
 
-  async load(ctx: CityContext, signal: AbortSignal): Promise<void> {
-    const res = await fetch(ctx.resolveUrl(this.city.layers.water.file), { signal });
+  /** Polygons from the pipeline, or (no file) a plane over the whole slab that the
+   * terrain occludes: water then shows exactly where the ground lies below sea level. */
+  private async surface(ctx: CityContext, signal: AbortSignal): Promise<THREE.BufferGeometry> {
+    const file = this.city.layers.water.file;
+    if (!file) {
+      const { halfWidth: hw, halfDepth: hd } = ctx.bounds;
+      return new THREE.PlaneGeometry(2 * hw, 2 * hd, 1, 1).rotateX(-Math.PI / 2);
+    }
+    const res = await fetch(ctx.resolveUrl(file), { signal });
     if (!res.ok) throw new Error(`water HTTP ${res.status}`);
     const data = (await res.json()) as WaterFile;
     const shapes = data.polygons.map(([outer, ...holes]) => {
@@ -36,8 +45,11 @@ export class WaterLayer implements Layer {
       s.holes = holes.map((h) => new THREE.Path(h.map(([x, z]) => new THREE.Vector2(x, -z))));
       return s;
     });
-    const geom = new THREE.ShapeGeometry(shapes);
-    geom.rotateX(-Math.PI / 2);
+    return new THREE.ShapeGeometry(shapes).rotateX(-Math.PI / 2);
+  }
+
+  async load(ctx: CityContext, signal: AbortSignal): Promise<void> {
+    const geom = await this.surface(ctx, signal);
     // world-scaled UVs for the ripple map (1 repeat per 90 m)
     const pos = geom.getAttribute('position');
     const uv = new Float32Array(pos.count * 2);

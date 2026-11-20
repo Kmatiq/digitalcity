@@ -1,21 +1,27 @@
-/** WMS ortho imagery requests in EPSG:3879 (WMS 1.1.1 => x,y axis order). */
+/** WMS ortho imagery requests in the city's projected CRS (WMS 1.1.1 => x,y axis order). */
 import * as THREE from 'three';
 
-export interface Bbox3879 {
+export interface ProjBbox {
   minE: number;
   minN: number;
   maxE: number;
   maxN: number;
 }
 
-export function wmsUrl(base: string, layer: string, b: Bbox3879, size: number): string {
+export function wmsUrl(
+  base: string,
+  layer: string,
+  crs: string,
+  b: ProjBbox,
+  size: number,
+): string {
   const q = new URLSearchParams({
     SERVICE: 'WMS',
     VERSION: '1.1.1',
     REQUEST: 'GetMap',
     LAYERS: layer,
     STYLES: '',
-    SRS: 'EPSG:3879',
+    SRS: crs,
     BBOX: [b.minE, b.minN, b.maxE, b.maxN].map((v) => v.toFixed(2)).join(','),
     WIDTH: String(size),
     HEIGHT: String(size),

@@ -1,7 +1,7 @@
-/** One square ground tile: height-sampled grid with UVs mapped to an EPSG:3879 bbox. */
+/** One square ground tile: height-sampled grid with UVs mapped to an projected bbox. */
 import * as THREE from 'three';
 import type { HeightField } from '../../core/heightfield';
-import type { Bbox3879 } from './orthoSource';
+import type { ProjBbox } from './orthoSource';
 
 /** Affine local(x,z) -> EPSG:3879(E,N), fitted from three tile corners. */
 export interface Affine {
@@ -32,7 +32,7 @@ export function fitAffine(
   };
 }
 
-export function bboxOf(a: Affine, size: number, pad = 0.5): Bbox3879 {
+export function bboxOf(a: Affine, size: number, pad = 0.5): ProjBbox {
   const es: number[] = [];
   const ns: number[] = [];
   for (const [dx, dz] of [
@@ -59,7 +59,7 @@ export function buildTileGeometry(
   size: number,
   spacing: number,
   affine: Affine,
-  bbox: Bbox3879,
+  bbox: ProjBbox,
 ): THREE.BufferGeometry {
   const n = Math.max(2, Math.round(size / spacing)) + 1;
   const pos = new Float32Array(n * n * 3);

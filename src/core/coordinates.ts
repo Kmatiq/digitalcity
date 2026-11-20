@@ -21,11 +21,14 @@ const F = 1 / 298.257222101; // GRS80 flattening
 const E2 = F * (2 - F);
 const DEG = Math.PI / 180;
 
-proj4.defs(
-  'EPSG:3879',
-  '+proj=tmerc +lat_0=0 +lon_0=25 +k=1 +x_0=25500000 +y_0=0 +ellps=GRS80 ' +
-    '+towgs84=0,0,0,0,0,0,0 +units=m +no_defs',
-);
+/** Projected CRSs used by city configs (all GRS80 transverse Mercator). */
+const TM = (lon0: number, x0: number, k = 1): string =>
+  `+proj=tmerc +lat_0=0 +lon_0=${lon0} +k=${k} +x_0=${x0} +y_0=0 +ellps=GRS80 ` +
+  '+towgs84=0,0,0,0,0,0,0 +units=m +no_defs';
+proj4.defs('EPSG:3879', TM(25, 25500000)); // ETRS-GK25 (Helsinki)
+proj4.defs('EPSG:3006', TM(15, 500000, 0.9996)); // SWEREF 99 TM (Sweden)
+proj4.defs('EPSG:3007', TM(12, 150000)); // SWEREF 99 12 00 (Göteborg)
+export type ProjectedCrs = 'EPSG:3879' | 'EPSG:3006' | 'EPSG:3007';
 
 export interface LocalFrame {
   readonly lat0: number;
@@ -114,23 +117,44 @@ export function ecefToLocalMatrix(f: LocalFrame): number[] {
   ]; // prettier-ignore
 }
 
-/** WGS84 lon/lat -> EPSG:3879 (ETRS-GK25) [easting, northing]. */
-export function wgs84To3879(lon: number, lat: number): [number, number] {
-  const [e, n] = proj4('EPSG:4326', 'EPSG:3879', [lon, lat]);
+/** WGS84 lon/lat -> projected [easting, northing]. */
+export function wgs84ToProjected(crs: ProjectedCrs, lon: number, lat: number): [number, number] {
+  const [e, n] = proj4('EPSG:4326', crs, [lon, lat]);
   return [e, n];
 }
 
-export function epsg3879ToWgs84(e: number, n: number): [number, number] {
-  const [lon, lat] = proj4('EPSG:3879', 'EPSG:4326', [e, n]);
+export function projectedToWgs84(crs: ProjectedCrs, e: number, n: number): [number, number] {
+  const [lon, lat] = proj4(crs, 'EPSG:4326', [e, n]);
   return [lon, lat];
 }
 
-export function localTo3879(f: LocalFrame, x: number, z: number): [number, number] {
+export function localToProjected(
+  f: LocalFrame,
+  crs: ProjectedCrs,
+  x: number,
+  z: number,
+): [number, number] {
   const [lon, lat] = localToWgs84(f, [x, 0, z]);
-  return wgs84To3879(lon, lat);
+  return wgs84ToProjected(crs, lon, lat);
 }
 
-export function epsg3879ToLocal(f: LocalFrame, e: number, n: number, h = 0): Vec3 {
-  const [lon, lat] = epsg3879ToWgs84(e, n);
+export function projectedToLocal(
+  f: LocalFrame,
+  crs: ProjectedCrs,
+  e: number,
+  n: number,
+  h = 0,
+): Vec3 {
+  const [lon, lat] = projectedToWgs84(crs, e, n);
   return wgs84ToLocal(f, lon, lat, h);
 }
+
+// Helsinki helpers (EPSG:3879), kept for readability at call sites.
+export const wgs84To3879 = (lon: number, lat: number): [number, number] =>
+  wgs84ToProjected('EPSG:3879', lon, lat);
+export const epsg3879ToWgs84 = (e: number, n: number): [number, number] =>
+  projectedToWgs84('EPSG:3879', e, n);
+export const localTo3879 = (f: LocalFrame, x: number, z: number): [number, number] =>
+  localToProjected(f, 'EPSG:3879', x, z);
+export const epsg3879ToLocal = (f: LocalFrame, e: number, n: number, h = 0): Vec3 =>
+  projectedToLocal(f, 'EPSG:3879', e, n, h);

@@ -6,6 +6,7 @@ import { store } from './core/store';
 import { installTestHooks } from './core/testHooks';
 import { QUALITY_LEVELS, type QualityLevel } from './core/types';
 import { BuildingsLayer } from './layers/buildings/buildingsLayer';
+import { ExtrudedBuildingsLayer } from './layers/buildings/extrudedBuildingsLayer';
 import { SlabLayer } from './layers/slab/slabLayer';
 import { TerrainLayer } from './layers/terrain/terrainLayer';
 import { TransitLayer } from './layers/transit/transitLayer';
@@ -48,15 +49,21 @@ export async function startApp(canvas: HTMLCanvasElement): Promise<Engine> {
   e.layers.add(new SlabLayer());
   e.layers.add(new TerrainLayer(city));
   e.layers.add(new WaterLayer(city));
-  e.layers.add(new BuildingsLayer(city));
-  e.layers.add(new TransitLayer(city));
+  e.layers.add(
+    city.layers.buildings.type === '3dtiles'
+      ? new BuildingsLayer(city)
+      : new ExtrudedBuildingsLayer(city),
+  );
+  if (city.layers.transit) e.layers.add(new TransitLayer(city));
 
   e.modes.register(menuMode(e));
   e.modes.register(exploreMode(e));
   e.modes.register(lockedMode('rescue_game', 'Räddningsuppdrag', 'Skicka utryckningsfordon'));
-  const transitGame = transitGameMode(e);
-  gameActions = transitGame.actions;
-  e.modes.register(transitGame);
+  if (city.layers.transit) {
+    const transitGame = transitGameMode(e);
+    gameActions = transitGame.actions;
+    e.modes.register(transitGame);
+  } else e.modes.register(lockedMode('transit_game', 'Trafikledare', 'Kommer för den här staden'));
   e.modes.register(lockedMode('history', 'Tidsresenären', 'Staden 1932 – idag'));
 
   const t = params.get('time');
