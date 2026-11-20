@@ -13,10 +13,12 @@
     "test": "vitest run",
     "pipeline:terrain": "tsx pipeline/build-terrain.ts",
     "pipeline:water": "tsx pipeline/build-water.ts",
-    "shots": "node scripts/screenshots.mjs"
+    "shots": "node scripts/screenshots.mjs",
+    "pipeline:transit": "tsx pipeline/build-transit.ts"
   },
   "dependencies": {
     "3d-tiles-renderer": "^0.5.4",
+    "mqtt": "^5.16.1",
     "proj4": "^2.23.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",

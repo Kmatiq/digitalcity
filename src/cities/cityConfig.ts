@@ -15,7 +15,7 @@ export interface CityConfig {
     ortho: { source: string; url: string; layer: string };
     buildings: { source: string; url: string };
     water: { source: string; url: string; typeNames: string[]; file: string };
-    transit: { source: string };
+    transit: { source: string; mqtt: string; modes: string[]; file: string; attribution: string };
   };
 }
 

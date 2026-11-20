@@ -1,13 +1,32 @@
 {
   "id": "helsinki",
   "name": "Helsingfors",
-  "center": { "lat": 60.1695, "lon": 24.9525 },
-  "size": { "width": 2000, "depth": 2000, "below": 50, "above": 250 },
+  "center": {
+    "lat": 60.1695,
+    "lon": 24.9525
+  },
+  "size": {
+    "width": 2000,
+    "depth": 2000,
+    "below": 50,
+    "above": 250
+  },
   "crs": "EPSG:3879",
   "heightSystem": "N2000",
   "seaLevel": 0,
   "attribution": "Helsingin kaupunki (CC BY 4.0)",
-  "camera": { "position": [1150, 950, 1650], "target": [0, 0, 0] },
+  "camera": {
+    "position": [
+      1150,
+      950,
+      1650
+    ],
+    "target": [
+      0,
+      0,
+      0
+    ]
+  },
   "layers": {
     "terrain": {
       "source": "hel-terrain-2021",
@@ -27,9 +46,22 @@
     "water": {
       "source": "hel-wfs-maavesi",
       "url": "https://kartta.hel.fi/ws/geoserver/avoindata/wfs",
-      "typeNames": ["avoindata:Maavesi_merialue", "avoindata:Maavesi_muut_vesialueet"],
+      "typeNames": [
+        "avoindata:Maavesi_merialue",
+        "avoindata:Maavesi_muut_vesialueet"
+      ],
       "file": "cities/helsinki/water.json"
     },
-    "transit": { "source": "hsl-hfp" }
+    "transit": {
+      "source": "hsl-hfp",
+      "mqtt": "wss://mqtt.hsl.fi:443/",
+      "modes": [
+        "tram",
+        "bus",
+        "ferry"
+      ],
+      "file": "cities/helsinki/transit.json",
+      "attribution": "HSL (CC BY 4.0)"
+    }
   }
 }
