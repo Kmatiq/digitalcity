@@ -1,0 +1,18 @@
+{
+ "source": "gbg-hojdmodell-wcs (RH2000) via WCS",
+ "waterRule": "connected regions <= 0.3 m with >= 400 cells",
+ "attribution": "Göteborgs Stad (CC0)",
+ "generated": "2026-11-20T14:35:42.497Z",
+ "resolution": 2,
+ "nx": 1001,
+ "nz": 1001,
+ "encoding": "int16-cm-le, row 0 = north (z=-halfD), col 0 = west (x=-halfW)",
+ "minY": -10,
+ "maxY": 35.79850769042969,
+ "seabed": {
+  "schematic": true,
+  "maxDepth": 10,
+  "rule": "min(max, 1.5 + 0.2 * shoreDist)"
+ },
+ "waterCells": 207653
+}
