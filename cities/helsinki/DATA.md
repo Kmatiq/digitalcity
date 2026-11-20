@@ -32,6 +32,16 @@ avrunda innan tabelluppslag (`featureData.ts`). Läsning utanför tabellens rada
 - Terrängens höjder är **N2000** (lagrade i ellipsoidhöjdens plats i ECEF, min ≈ 0,6 m vid
   hamnen). Samma konvention gäller 3D Tiles → `y = 0` är havsnivå utan geoidkorrektion.
 
+## Milstolpe 2 — kollektivtrafik (verifierat 2026-11-20)
+
+| Data | Adress | Format | Noteringar |
+| --- | --- | --- | --- |
+| Realtid (HFP v2) | `wss://mqtt.hsl.fi:443/` | MQTT över WebSocket, JSON `VP` | CC BY 4.0, "HSL". Anslutning ~0,6 s. Hela `tram/#` + bussar i regionen gav ~700 msg/s → appen prenumererar **endast** på topic-geohash-celler (0,01°) som täcker plattan, per läge (`tram`, `bus`, `ferry`): 30 topics, ~175 msg/s. `dl` < 0 = försenad. `route` = GTFS `route_id`. |
+| Linjer & hållplatser | `https://infopalvelut.storage.hsldev.com/gtfs/hsl.zip` (87 MB; `http://dev.hsl.fi/gtfs/hsl.zip` → 301 till https) | GTFS | Förbehandlas offline: `npm run pipeline:transit` (`GTFS_DIR` = uppackad zip) → `transit.json` (105 KB): 22 spårvagns-, 85 buss-, 2 färjelinjer (vanligaste formen per riktning, klippt till plattan) och 126 hållplatser. |
+| Digitransit API | `api.digitransit.fi` | GraphQL | Kräver API-nyckel → används **inte** (inga nycklar i koden). |
+
+Störningarna i Trafikledare är **fiktiva**; fordonen de påverkar är de verkliga.
+
 ## Schematiskt (märkt i UI)
 
 - **Havsbotten:** öppen batymetri saknas i datasetet. Djup = `min(10 m, 1,5 + 0,2 · avstånd till strand)`.

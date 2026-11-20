@@ -38,3 +38,13 @@ avstängd tills nattläget (M3) där fönsterljus behöver den.
 Färg per vertex bakas vid laddning från `usage` + `dateOfConstruction` (palett i
 `buildingStyle.ts`): förkrigshus ockra/lax/sand, funkis ljust, efterkrig grått/tegel; tak mörk
 plåt med inslag av patina och rött. Baksidor som exponeras av kantsnittet ritas i snittfärg.
+
+## 2026-11-20 — Milstolpe 2: Trafikledare som prototyp
+
+Fokus på något spelbart som testar staden, grafiken väntar. Fiktiva störningar (urspårning,
+bil på spåret, signalfel) läggs på verkliga huvudlinjer för spårvagn; drabbade linjer och de
+**verkliga** HSL-fordonen färgas. Åtgärder: reparationslag (2 st), omdirigering per linje
+(−150), ritad ersättningsbuss (−300, halverar förseningen om den passerar inom 90 m).
+Poäng = 10 000 + 400/åtgärdad − försenade resenärsminuter − kostnader. 5-minuterspass.
+Linjenätet kommer från GTFS offline (Digitransit kräver nyckel). Nattbelysningen fick ett
+"månljusgolv" så att spelet går att använda på vinterkvällar innan nattläget (M3).
