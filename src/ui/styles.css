@@ -536,3 +536,238 @@ svg {
     font-size: 11px;
   }
 }
+
+/* ---------- Trafikledare ---------- */
+.g-top {
+  position: absolute;
+  top: calc(10px + env(safe-area-inset-top, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: var(--glass-strong);
+  border: 1px solid var(--line);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.g-top .warn {
+  color: #ffb4a8;
+}
+
+.g-top strong {
+  color: var(--accent);
+}
+
+.g-chips {
+  position: absolute;
+  top: calc(56px + env(safe-area-inset-top, 0px));
+  left: 8px;
+  right: 8px;
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  overflow-x: auto;
+  pointer-events: none;
+}
+
+.g-chip {
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 6px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(229, 72, 59, 0.6);
+  background: rgba(120, 24, 18, 0.72);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.g-chip small {
+  font-weight: 400;
+  opacity: 0.85;
+  font-size: 11px;
+}
+
+.g-chip.repairing {
+  border-color: rgba(242, 194, 58, 0.7);
+  background: rgba(110, 84, 10, 0.75);
+}
+
+.g-chip.resolved {
+  border-color: rgba(63, 191, 111, 0.7);
+  background: rgba(20, 90, 50, 0.75);
+}
+
+.g-chip.sel {
+  outline: 2px solid #fff;
+}
+
+.g-toast {
+  position: absolute;
+  top: calc(112px + env(safe-area-inset-top, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.7);
+  font-size: 13px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.g-panel h2 {
+  font-size: 15px;
+}
+
+.g-progress {
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+  margin: 2px 0 10px;
+}
+
+.g-progress i {
+  display: block;
+  height: 100%;
+  background: #f2c23a;
+  transition: width 0.25s linear;
+}
+
+.g-act {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 11px 12px;
+  margin: 6px 0;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 14px;
+}
+
+.g-act.primary,
+.g-draw .primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: var(--accent);
+  font-weight: 600;
+}
+
+.g-act:disabled,
+.g-draw button:disabled,
+.g-line:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.g-lines {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.g-line {
+  flex: 1 1 auto;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 152, 95, 0.7);
+  background: rgba(0, 152, 95, 0.22);
+  font-size: 13px;
+}
+
+.g-line.on {
+  background: rgba(0, 152, 95, 0.6);
+}
+
+.ok {
+  color: #9be3b5;
+  font-weight: 600;
+}
+
+.g-draw {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: calc(96px + var(--safe-b));
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 14px;
+  background: var(--glass-strong);
+  border: 1px solid var(--line);
+  font-size: 13px;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.g-draw span {
+  flex: 1;
+}
+
+.g-draw button {
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.g-card h1 {
+  margin: 0 0 4px;
+  font-size: 24px;
+}
+
+.g-rules {
+  margin: 10px 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.g-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.g-row .g-act {
+  width: auto;
+  flex: 1;
+  margin: 0;
+}
+
+.g-score {
+  font-size: 40px;
+  font-weight: 700;
+  margin: 4px 0 6px;
+  color: var(--accent);
+}
+
+@media (min-width: 600px) {
+  .g-panel {
+    left: 16px;
+    right: auto;
+    top: calc(112px + env(safe-area-inset-top, 0px));
+    width: 320px;
+  }
+
+  .g-chips {
+    right: 84px;
+  }
+}

@@ -19,7 +19,13 @@ const ENTRIES: {
 }[] = [
   { id: 'explore', title: 'Digital Tvilling', sub: 'Utforska', icon: Icon.globe, locked: false },
   { id: 'rescue_game', title: 'Räddningsuppdrag', sub: 'Spel', icon: Icon.siren, locked: true },
-  { id: 'transit_game', title: 'Trafikledare', sub: 'Spel', icon: Icon.tram, locked: true },
+  {
+    id: 'transit_game',
+    title: 'Trafikledare',
+    sub: 'Spel · prototyp',
+    icon: Icon.tram,
+    locked: false,
+  },
   { id: 'history', title: 'Historiska reglaget', sub: 'Historia', icon: Icon.clock, locked: true },
 ];
 

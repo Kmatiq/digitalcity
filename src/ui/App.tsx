@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactElement } from 'react';
-import { getEngine, saveQuality, startApp } from '../app';
+import { getEngine, getGameActions, saveQuality, startApp } from '../app';
 import { getCity } from '../cities/cityConfig';
 import { store, useAppState } from '../core/store';
 import type { AppMode, QualityLevel } from '../core/types';
@@ -8,6 +8,7 @@ import { DataSheet } from './DataSheet';
 import { Hud, type HudActions } from './Hud';
 import { InfoCard } from './InfoCard';
 import { StartMenu } from './StartMenu';
+import { TransitHud } from './game/TransitHud';
 
 const city = getCity(new URLSearchParams(location.search).get('city') ?? 'helsinki');
 
@@ -58,6 +59,16 @@ export function App(): ReactElement {
         {mode === 'explore' && (
           <>
             <Hud actions={actions} />
+            <InfoCard onClose={() => store.set({ picked: null })} />
+          </>
+        )}
+        {mode === 'transit_game' && getGameActions() && (
+          <>
+            <TransitHud
+              actions={getGameActions()!}
+              onHome={actions.home}
+              onResetCamera={actions.resetCamera}
+            />
             <InfoCard onClose={() => store.set({ picked: null })} />
           </>
         )}
