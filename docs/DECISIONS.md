@@ -48,3 +48,12 @@ bil på spåret, signalfel) läggs på verkliga huvudlinjer för spårvagn; drab
 Poäng = 10 000 + 400/åtgärdad − försenade resenärsminuter − kostnader. 5-minuterspass.
 Linjenätet kommer från GTFS offline (Digitransit kräver nyckel). Nattbelysningen fick ett
 "månljusgolv" så att spelet går att använda på vinterkvällar innan nattläget (M3).
+
+## 2026-11-20 — Flera städer: Göteborg steg 1
+
+Stadskonfigurationen styr lagren: 3D Tiles (Helsingfors) eller extruderade fotavtryck från
+pipelinen (Göteborg); vattenpolygoner eller ett vattenplan som terrängen skymmer; valfri
+kollektivtrafik. Projektioner är generaliserade (EPSG:3879/3006/3007). Byte av stad laddar om
+sidan (`?city=`) så att motorn startar rent. Höjdgrid-logiken (hålfyllnad, havsbotten,
+filformat) delas mellan städerna i `pipeline/heightGrid.ts` — Helsingfors utdata verifierad
+byte-identisk efter omstruktureringen. Göteborgs detaljer: `docs/GOTEBORG.md`.

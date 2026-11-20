@@ -1,7 +1,8 @@
 # Stadsplattan — arbetsregler
 
-3D-diorama av en verklig stad (Helsingfors, 2×2 km, 50 m djup) i webbläsaren. Fullständig brief:
-`docs/BRIEF.md`. Beslut: `docs/DECISIONS.md`. Datakällor: `cities/helsinki/DATA.md`.
+3D-diorama av en verklig stad (Helsingfors och Göteborg, 2×2 km, 50 m djup) i webbläsaren.
+Fullständig brief: `docs/BRIEF.md`. Beslut: `docs/DECISIONS.md`. Göteborgs etapper: `docs/GOTEBORG.md`.
+Datakällor: `cities/<stad>/DATA.md`. Välj stad med `?city=helsinki|goteborg` (eller i menyn).
 
 ## Kommandon
 
@@ -9,6 +10,8 @@
 - `npm run typecheck` · `npm run lint` · `npm test` (vitest) · `npx prettier --write .`
 - `npm run pipeline:water` → sedan `npm run pipeline:terrain` (vattnet behövs för havsbotten)
 - `GTFS_DIR=/path/hsl npm run pipeline:transit` (uppackad HSL GTFS)
+- Göteborg: `CITY=goteborg npm run pipeline:terrain-wcs` → sedan
+  `BASKARTA_DIR=/path/baskarta_shp CITY=goteborg npm run pipeline:buildings-gbg` (behöver terrain.bin)
 - `NODE_PATH=$(npm root -g) node scripts/play-transit.mjs --view=desktop|fold-closed|fold-open` — E2E för Trafikledare
 - `NODE_PATH=$(npm root -g) node scripts/screenshots.mjs [--only=desktop,fold-closed,fold-open] [--scenes=menu,explore,pick,edge] [--q=quality=medium] [--inspect]`
 
@@ -24,21 +27,25 @@
   (t.ex. `TransitLayer.tintOf`, `NetworkLines.highlight`). Trafikledare: `modes/transit/` —
   `gameLogic.ts` är ren och enhetstestad, `gameVisuals.ts` 3D, `transitGame.ts` styrning; UI i `ui/game/`.
 - HSL-realtid: prenumerera aldrig på hela `/hfp/v2/journey/#` — bara plattans geohash-celler (`hfpClient.ts`).
-- `src/ui/` tunt React-lager ovanpå 100 % canvas. `src/cities/<stad>.json` stadskonfiguration.
+- `src/ui/` tunt React-lager ovanpå 100 % canvas. `src/cities/<stad>.json` stadskonfiguration:
+  `buildings.type` = `3dtiles` (Helsingfors) | `extruded` (Göteborg), vatten utan `file` = plan
+  som marken skymmer, `transit` valfri (saknas → Trafikledare låst). Ortofoto-WMS i stadens CRS.
 - `pipeline/` offline-förbehandling (Node/tsx) → `public/cities/<stad>/`.
 
 ## Koordinater (icke förhandlingsbart)
 
 Lokala meter, origo i plattans mitt vid havsnivå: **+X öst, +Y upp, −Z norr (+Z syd)**.
-ENU-tangentplan → 3D Tiles mappas med en matris (`ecefToLocalMatrix`). Höjder = N2000 (Helsingfors
-data lagrar N2000 i ECEF:s höjdfält). WMS-flygfoto begärs i EPSG:3879 (WMS 1.1.1 ⇒ x,y-ordning).
+ENU-tangentplan → 3D Tiles mappas med en matris (`ecefToLocalMatrix`). Höjder = stadens system
+(Helsingfors N2000, lagrat i ECEF:s höjdfält; Göteborg RH2000). Projektioner: EPSG:3879, 3006,
+3007 (`localToProjected`/`projectedToLocal`). WMS 1.1.1 ⇒ x,y-ordning.
 
 ## Regler
 
 - Små moduler (ESLint varnar > 350 rader), inga hoptryckta rader, ingen variabelskuggning.
 - Genomskinliga material: `depthWrite: false`. Inget procedurbrus på stadsterräng.
 - Schematiska lager: `isSchematic: true` + märkning i UI. Källhänvisning alltid synlig.
-- Inga nycklar/hemligheter. Mobil först (Galaxy Fold stängd ~360 px, uppvikt ~720 px).
+- Inga nycklar/hemligheter i appen. Kontouppgifter (t.ex. Lantmäteriet) endast i offline-pipelinen
+  via miljöns nätverkshemligheter. Mobil först (Galaxy Fold stängd ~360 px, uppvikt ~720 px).
 - Ändra aldrig källkod medan ett skärmdumpstest kör. Molnwebbläsaren kör SwiftShader (~1 FPS) —
   FPS där säger inget; 3D Tiles-parsning tar minuter där.
 - Draco feature-id är flyttal → avrunda. Läs aldrig utanför property-tabellen.
