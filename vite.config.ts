@@ -18,5 +18,5 @@ export default defineConfig(({ command }) => ({
     __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
   },
   build: { target: 'es2022', chunkSizeWarningLimit: 1500 },
-  test: { include: ['src/**/*.test.ts'] },
+  test: { include: ['src/**/*.test.ts', 'pipeline/**/*.test.ts'] },
 }));

@@ -5,7 +5,7 @@
  */
 import polygonClipping, { type MultiPolygon, type Polygon } from 'polygon-clipping';
 import { epsg3879ToLocal, localTo3879 } from '../src/core/coordinates';
-import { city, fetchRetry, frame, halfD, halfW, writePublic } from './common';
+import { city, fetchRetry, frame, halfD, halfW, need, writePublic } from './common';
 
 type Ring = [number, number][];
 
@@ -70,7 +70,7 @@ function toLocalRing(ring: number[][]): Ring {
 
 async function main(): Promise<void> {
   const all: Polygon[] = [];
-  for (const t of city.layers.water.typeNames) {
+  for (const t of need(city.layers.water.typeNames, 'layers.water.typeNames')) {
     const url = wfsUrl(t);
     console.log('fetch', t);
     const json = (await (await fetchRetry(url)).json()) as {
@@ -112,7 +112,7 @@ async function main(): Promise<void> {
     frame: { lat: city.center.lat, lon: city.center.lon },
     polygons,
   };
-  writePublic(city.layers.water.file, JSON.stringify(out));
+  writePublic(need(city.layers.water.file, 'layers.water.file'), JSON.stringify(out));
   console.log(`${polygons.length} polygons`);
 }
 

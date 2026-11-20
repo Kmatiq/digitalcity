@@ -6,7 +6,7 @@
 import { join } from 'node:path';
 import { wgs84ToLocal } from '../src/core/coordinates';
 import { readCsv } from './csv';
-import { city, frame, halfD, halfW, writePublic } from './common';
+import { city, frame, halfD, halfW, need, writePublic } from './common';
 
 type Mode = 'tram' | 'bus' | 'ferry';
 type Pt = [number, number];
@@ -187,7 +187,7 @@ async function main(): Promise<void> {
     shapes,
     stops,
   };
-  writePublic(city.layers.transit.file, JSON.stringify(out));
+  writePublic(need(city.layers.transit, 'layers.transit').file, JSON.stringify(out));
   const byMode = (m: Mode): number => out.routes.filter((r) => r.mode === m).length;
   console.log(
     `routes: tram ${byMode('tram')}, bus ${byMode('bus')}, ferry ${byMode('ferry')}; shapes ${shapes.length}; stops ${stops.length}`,

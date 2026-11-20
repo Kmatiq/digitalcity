@@ -14,7 +14,9 @@
     "pipeline:terrain": "tsx pipeline/build-terrain.ts",
     "pipeline:water": "tsx pipeline/build-water.ts",
     "shots": "node scripts/screenshots.mjs",
-    "pipeline:transit": "tsx pipeline/build-transit.ts"
+    "pipeline:transit": "tsx pipeline/build-transit.ts",
+    "pipeline:terrain-wcs": "tsx pipeline/build-terrain-wcs.ts",
+    "pipeline:buildings-gbg": "tsx pipeline/build-buildings-gbg.ts"
   },
   "dependencies": {
     "3d-tiles-renderer": "^0.5.4",
@@ -34,6 +36,7 @@
     "@vitejs/plugin-react": "^6.3.0",
     "eslint": "^10.15.0",
     "eslint-plugin-react-hooks": "^7.1.1",
+    "geotiff": "^3.0.5",
     "globals": "^17.14.0",
     "polygon-clipping": "^0.15.7",
     "prettier": "^3.10.1",

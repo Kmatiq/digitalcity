@@ -28,3 +28,9 @@ export async function fetchRetry(url: string, init?: RequestInit, tries = 4): Pr
     }
   }
 }
+
+/** Fail fast when a pipeline needs a config field the city does not define. */
+export function need<T>(value: T | undefined, what: string): T {
+  if (value === undefined) throw new Error(`${city.id}: missing ${what} in city config`);
+  return value;
+}

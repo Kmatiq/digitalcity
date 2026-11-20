@@ -9,16 +9,12 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { localToWgs84, wgs84ToLocal } from '../src/core/coordinates';
-import { city, fetchRetry, frame, halfD, halfW, writePublic } from './common';
+import { city, fetchRetry, frame, halfD, halfW, need } from './common';
+import { fillHoles, newGrid, NX, NZ, polygonMask, RES, writeTerrain } from './heightGrid';
 import { decodeQuantizedMesh } from './quantizedMesh';
 
-const RES = 2;
 const ZOOM = Number(process.env.ZOOM ?? 17);
-const MAX_DEPTH = 10;
-const NX = Math.round((2 * halfW) / RES) + 1;
-const NZ = Math.round((2 * halfD) / RES) + 1;
-
-const grid = new Float32Array(NX * NZ).fill(NaN);
+const grid = newGrid();
 
 function rasterTriangle(p: number[][]): void {
   // p: [gx, gz, y] in grid units
@@ -82,122 +78,22 @@ async function loadTiles(): Promise<void> {
   await Promise.all(Array.from({ length: 6 }, worker));
 }
 
-/** Scanline-rasterise water polygons into a mask. */
 function waterMask(): Uint8Array {
-  const mask = new Uint8Array(NX * NZ);
-  const json = JSON.parse(readFileSync(join('public', city.layers.water.file), 'utf8')) as {
+  const json = JSON.parse(
+    readFileSync(join('public', need(city.layers.water.file, 'layers.water.file')), 'utf8'),
+  ) as {
     polygons: [number, number][][][];
   };
-  for (const poly of json.polygons) {
-    for (let gz = 0; gz < NZ; gz++) {
-      const z = -halfD + gz * RES;
-      const xs: number[] = [];
-      for (const ring of poly) {
-        for (let i = 0; i < ring.length - 1; i++) {
-          const [ax, az] = ring[i];
-          const [bx, bz] = ring[i + 1];
-          if (az <= z !== bz <= z) xs.push(ax + ((z - az) / (bz - az)) * (bx - ax));
-        }
-      }
-      xs.sort((a, b) => a - b);
-      for (let k = 0; k + 1 < xs.length; k += 2) {
-        const g0 = Math.max(0, Math.ceil((xs[k] + halfW) / RES));
-        const g1 = Math.min(NX - 1, Math.floor((xs[k + 1] + halfW) / RES));
-        for (let gx = g0; gx <= g1; gx++) mask[gz * NX + gx] = 1;
-      }
-    }
-  }
-  return mask;
-}
-
-/** Two-pass chamfer distance (meters) from the nearest non-water cell. */
-function distanceToShore(mask: Uint8Array): Float32Array {
-  const d = new Float32Array(NX * NZ);
-  for (let i = 0; i < d.length; i++) d[i] = mask[i] ? 1e9 : 0;
-  const D1 = RES;
-  const D2 = RES * Math.SQRT2;
-  const relax = (i: number, j: number, c: number): void => {
-    if (d[j] + c < d[i]) d[i] = d[j] + c;
-  };
-  for (let z = 0; z < NZ; z++)
-    for (let x = 0; x < NX; x++) {
-      const i = z * NX + x;
-      if (x > 0) relax(i, i - 1, D1);
-      if (z > 0) relax(i, i - NX, D1);
-      if (x > 0 && z > 0) relax(i, i - NX - 1, D2);
-      if (x < NX - 1 && z > 0) relax(i, i - NX + 1, D2);
-    }
-  for (let z = NZ - 1; z >= 0; z--)
-    for (let x = NX - 1; x >= 0; x--) {
-      const i = z * NX + x;
-      if (x < NX - 1) relax(i, i + 1, D1);
-      if (z < NZ - 1) relax(i, i + NX, D1);
-      if (x < NX - 1 && z < NZ - 1) relax(i, i + NX + 1, D2);
-      if (x > 0 && z < NZ - 1) relax(i, i + NX - 1, D2);
-    }
-  return d;
-}
-
-function fillHoles(): number {
-  let missing = 0;
-  for (let pass = 0; pass < 50; pass++) {
-    missing = 0;
-    for (let z = 0; z < NZ; z++)
-      for (let x = 0; x < NX; x++) {
-        const i = z * NX + x;
-        if (!Number.isNaN(grid[i])) continue;
-        let s = 0;
-        let n = 0;
-        for (const j of [i - 1, i + 1, i - NX, i + NX]) {
-          if (j >= 0 && j < grid.length && !Number.isNaN(grid[j])) {
-            s += grid[j];
-            n++;
-          }
-        }
-        if (n) grid[i] = s / n;
-        else missing++;
-      }
-    if (!missing) break;
-  }
-  return missing;
+  return polygonMask(json.polygons);
 }
 
 async function main(): Promise<void> {
   await loadTiles();
-  console.log('unfilled cells after fill:', fillHoles());
-  const mask = waterMask();
-  const dist = distanceToShore(mask);
-  let water = 0;
-  const out = new Int16Array(NX * NZ);
-  let minY = Infinity;
-  let maxY = -Infinity;
-  for (let i = 0; i < grid.length; i++) {
-    let y = grid[i];
-    if (mask[i]) {
-      water++;
-      y = city.seaLevel - Math.min(MAX_DEPTH, 1.5 + 0.2 * dist[i]);
-    }
-    minY = Math.min(minY, y);
-    maxY = Math.max(maxY, y);
-    out[i] = Math.round(y * 100);
-  }
-  writePublic(city.layers.terrain.heightmap, new Uint8Array(out.buffer));
-  const meta = {
+  console.log('unfilled cells after fill:', fillHoles(grid));
+  writeTerrain(grid, waterMask(), {
     source: 'Helsinki terrain 2021 (quantized-mesh), N2000',
-    attribution: city.attribution,
-    generated: new Date().toISOString(),
     zoom: ZOOM,
-    resolution: RES,
-    nx: NX,
-    nz: NZ,
-    encoding: 'int16-cm-le, row 0 = north (z=-halfD), col 0 = west (x=-halfW)',
-    minY,
-    maxY,
-    seabed: { schematic: true, maxDepth: MAX_DEPTH, rule: 'min(max, 1.5 + 0.2 * shoreDist)' },
-    waterCells: water,
-  };
-  writePublic(city.layers.terrain.meta, JSON.stringify(meta, null, 1));
-  console.log(meta);
+  });
 }
 
 main().catch((e) => {
